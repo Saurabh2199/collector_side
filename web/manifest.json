@@ -1,6 +1,6 @@
 {
-    "name": "collector_side",
-    "short_name": "collector_side",
+    "name": "gms_collector",
+    "short_name": "gms_collector",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

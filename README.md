@@ -1,4 +1,4 @@
-# collector_side
+# gms_collector
 
 A new Flutter application.
 

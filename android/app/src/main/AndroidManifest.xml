@@ -1,8 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.collector_side">
-   <application
-        android:label="collector_side"
+    package="com.xti.gms_collector">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:label="GMS Collector"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/launch_background" />
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

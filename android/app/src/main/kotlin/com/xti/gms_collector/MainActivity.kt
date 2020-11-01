@@ -1,4 +1,4 @@
-package com.example.collector_side
+package com.xti.gms_collector
 
 import io.flutter.embedding.android.FlutterActivity
 
