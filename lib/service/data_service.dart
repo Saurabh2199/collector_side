@@ -54,7 +54,27 @@ class DataService {
       "body": "Click here to report if your garbage was not collected",
       "to": "${mainModel.wardId}"
     });
-    print(response.body);
     return;
+  }
+
+  Future<bool> insertLocations(List<Map> locations) async {
+    try {
+      final response = await http.post(
+          "https://xtoinfinity.tech/GCUdupi/collector/gms_php/insertLocation.php",
+          body: {
+            "latitude": JsonEncoder().convert(locations.map((e) {
+              return e['latitude'].toString();
+            }).toList()),
+            "longitude": JsonEncoder().convert(locations.map((e) {
+              return e['longitude'].toString();
+            }).toList()),
+            "startTime": JsonEncoder().convert(locations.map((e) {
+              return e['startTime'].toString();
+            }).toList()),
+          });
+    } catch (e) {
+      return false;
+    }
+    return true;
   }
 }
