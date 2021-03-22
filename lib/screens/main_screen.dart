@@ -8,12 +8,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:gms_collector/model/main_model.dart';
 import 'package:gms_collector/service/data_service.dart';
-import 'package:gms_collector/widgets/arrow_icon.dart';
 import 'package:gms_collector/widgets/custom_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
-import 'package:location/location.dart';
 import 'package:screen/screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -102,7 +100,7 @@ class _MainScreenState extends State<MainScreen> {
     return;
   }
 
-  Future<void> updateUserLocation(double lat, double lon) async {
+  Future<void> updateUserLocation(double lat, double lon, double speed) async {
     double dist = distance(prevLat, prevLong, lat, lon);
     if (prevLat == 0 || (dist > 0.02)) {
       prevLat = lat;
@@ -112,6 +110,7 @@ class _MainScreenState extends State<MainScreen> {
         "startTime": DateTime.now(),
         "latitude": lat,
         "longitude": lon,
+        "speed": speed
       });
       markers.clear();
 
@@ -155,7 +154,6 @@ class _MainScreenState extends State<MainScreen> {
         }
       }
     }
-    //setState(() {});
   }
 
   addPolygon() {
@@ -236,15 +234,17 @@ class _MainScreenState extends State<MainScreen> {
       body: isLoad
           ? CustomLoading()
           : StreamBuilder<Position>(
-              stream: Geolocator.getPositionStream(),
+              stream: Geolocator.getPositionStream(
+                desiredAccuracy: LocationAccuracy.high,
+              ),
               builder: (context, snapshot) {
                 if (snapshot.data == null || !snapshot.hasData) {
                   return CustomLoading();
                 } else {
                   userLocation =
                       LatLng(snapshot.data.latitude, snapshot.data.longitude);
-                  updateUserLocation(
-                      snapshot.data.latitude, snapshot.data.longitude);
+                  updateUserLocation(snapshot.data.latitude,
+                      snapshot.data.longitude, snapshot.data.speed);
                   return GoogleMap(
                     markers: markers,
                     polygons: polygons,
