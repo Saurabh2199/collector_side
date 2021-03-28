@@ -6,10 +6,10 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:gms_collector/model/main_model.dart';
-import 'package:gms_collector/service/data_service.dart';
 import 'package:gms_collector/widgets/custom_loading.dart';
 import 'package:flutter/material.dart';
+import 'package:gms_core/models/main_model.dart';
+import 'package:gms_core/services/data_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:screen/screen.dart';
@@ -51,16 +51,14 @@ class _MainScreenState extends State<MainScreen> {
     await dataService.addCollection(currentModel);
     print(currentModel.collectionId);
     polygons.removeWhere(
-        (polygon) => polygon.polygonId.value == currentModel.wardId);
+        (polygon) => polygon.polygonId.value == currentModel.wardId.toString());
     polygons.add(Polygon(
-        polygonId: PolygonId(currentModel.wardId),
+        polygonId: PolygonId(currentModel.wardId.toString()),
         fillColor: Colors.yellow.withOpacity(0.15),
         strokeWidth: 1,
-        points: currentModel.latitude.map((lat) {
-          return LatLng(
-              double.parse(lat),
-              double.parse(
-                  currentModel.longitude[currentModel.latitude.indexOf(lat)]));
+        points: currentModel.latitudes.map((lat) {
+          return LatLng(lat,
+              currentModel.longitudes[currentModel.latitudes.indexOf(lat)]);
         }).toList()));
     isUploading = false;
     setState(() {});
@@ -69,16 +67,14 @@ class _MainScreenState extends State<MainScreen> {
   finishCollecting() async {
     await dataService.updateCollection(currentModel);
     polygons.removeWhere(
-        (polygon) => polygon.polygonId.value == currentModel.wardId);
+        (polygon) => polygon.polygonId.value == currentModel.wardId.toString());
     polygons.add(Polygon(
-        polygonId: PolygonId(currentModel.wardId),
+        polygonId: PolygonId(currentModel.wardId.toString()),
         fillColor: Colors.green.withOpacity(0.15),
         strokeWidth: 1,
-        points: currentModel.latitude.map((lat) {
-          return LatLng(
-              double.parse(lat),
-              double.parse(
-                  currentModel.longitude[currentModel.latitude.indexOf(lat)]));
+        points: currentModel.latitudes.map((lat) {
+          return LatLng(lat,
+              currentModel.longitudes[currentModel.latitudes.indexOf(lat)]);
         }).toList()));
     currentModel = null;
 
@@ -123,11 +119,9 @@ class _MainScreenState extends State<MainScreen> {
         if (currentModel == null) {
           mainModels.map((mainModel) {
             if (mainModel.startTime == null) {
-              List<Point> pointPolygon = mainModel.latitude.map((lat) {
-                return Point(
-                    double.parse(lat),
-                    double.parse(
-                        mainModel.longitude[mainModel.latitude.indexOf(lat)]));
+              List<Point> pointPolygon = mainModel.latitudes.map((lat) {
+                return Point(lat,
+                    mainModel.longitudes[mainModel.latitudes.indexOf(lat)]);
               }).toList();
               if (PolyUtils.containsLocationPoly(
                   Point(userLocation.latitude, userLocation.longitude),
@@ -139,11 +133,9 @@ class _MainScreenState extends State<MainScreen> {
             }
           }).toList();
         } else {
-          List<Point> pointPolygon = currentModel.latitude.map((lat) {
-            return Point(
-                double.parse(lat),
-                double.parse(currentModel
-                    .longitude[currentModel.latitude.indexOf(lat)]));
+          List<Point> pointPolygon = currentModel.latitudes.map((lat) {
+            return Point(lat,
+                currentModel.longitudes[currentModel.latitudes.indexOf(lat)]);
           }).toList();
           if (!PolyUtils.containsLocationPoly(
               Point(userLocation.latitude, userLocation.longitude),
@@ -167,16 +159,15 @@ class _MainScreenState extends State<MainScreen> {
         }
       }
       polygons.add(Polygon(
-          polygonId: PolygonId(mm.wardId),
+          polygonId: PolygonId(mm.wardId.toString()),
           fillColor: code == 0
               ? Colors.red.withOpacity(0.15)
               : code == 1
                   ? Colors.yellow.withOpacity(0.15)
                   : Colors.green.withOpacity(0.15),
           strokeWidth: 1,
-          points: mm.latitude.map((lat) {
-            return LatLng(double.parse(lat),
-                double.parse(mm.longitude[mm.latitude.indexOf(lat)]));
+          points: mm.latitudes.map((lat) {
+            return LatLng(lat, mm.longitudes[mm.latitudes.indexOf(lat)]);
           }).toList()));
     }).toList();
   }
@@ -192,7 +183,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   collectData() async {
-    await dataService.collectAllData(mainModels);
+    await dataService.collectAllData(mainModels, DateTime.now());
     // await createUserIcon();
     curImg = await getBytesFromAsset(
       "assets/images/current_marker.png",

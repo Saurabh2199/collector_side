@@ -12,10 +12,10 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   checkLogin() {
     GetStorage box = GetStorage();
-    if (box.hasData("token")) {
+    if (box.hasData("id")) {
       Get.offAll(MainScreen());
     } else {
-      Get.offAll(LoginScreen());
+      Get.to(LoginScreen());
     }
   }
 
@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    checkLogin();
+    Future.delayed(Duration(seconds: 1), () => checkLogin());
   }
 
   @override

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gms_collector/screens/main_screen.dart';
-import 'package:gms_collector/service/auth_service.dart';
 import 'package:gms_collector/widgets/custom_auth_button.dart';
 import 'package:gms_collector/widgets/custom_loading.dart';
+import 'package:gms_core/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,16 +12,21 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool isLoad = false;
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController passcodeController = TextEditingController();
 
   userSignIn() async {
-    if (phoneController.text.trim().length == 10) {
+    if (passcodeController.text.trim().length > 2) {
+      isLoad = true;
+      setState(() {});
       AuthService authService = AuthService();
-      bool response = await authService.signIn(
-          phoneController.text.trim(), passwordController.text.trim());
+      bool response =
+          await authService.collectorSignIn(passcodeController.text.trim());
+      isLoad = true;
+      setState(() {});
       if (response) {
         Get.offAll(MainScreen());
+      } else {
+        Get.rawSnackbar(message: "Invalid credentials");
       }
     } else {
       Get.rawSnackbar(message: "Invalid credentials");
@@ -65,23 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Container(
                     child: TextField(
-                      controller: phoneController,
+                      controller: passcodeController,
                       decoration: InputDecoration(
-                        labelText: "Mobile Number",
-                        hintText: "Enter your mobile number",
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                  ),
-                  SizedBox(
-                    height: Get.height * 0.02,
-                  ),
-                  Container(
-                    child: TextField(
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                          labelText: "Password",
-                          hintText: "Enter your password"),
+                          labelText: "Passcode",
+                          hintText: "Enter your passcode"),
                     ),
                   ),
                   SizedBox(
